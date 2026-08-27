@@ -1,0 +1,40 @@
+[tool.uv.workspace]
+members = ["apps/api", "apps/workers", "packages/platform-py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# Pin the rule set explicitly. `ruff>=0.7` resolves to whatever is newest at CI
+# time, and Ruff's default selection widens between releases — so an unpinned
+# config means the lint gate can start failing on a commit that changed nothing.
+# A gate that fails for reasons outside the diff gets ignored, and an ignored
+# gate is worse than no gate.
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PIE", "TRY", "RUF"]
+ignore = [
+  "TRY003",  # long messages inline: the whole point is that an error says what to fix
+  "E501",    # line length is handled by the formatter
+  "RUF002",  # en dashes in prose are deliberate: the house style is British English
+  "RUF003",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+# Starlette's add_exception_handler signature is narrower than what it accepts,
+# so the ignores in main.py are needed on some versions and redundant on others.
+warn_unused_ignores = false
+
+[[tool.mypy.overrides]]
+# Celery ships no type information. Its decorators therefore erase the types of
+# every task they wrap, which is a property of Celery, not of our code.
+module = ["celery", "celery.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["bai_workers.tasks.*", "bai_workers.celery_app"]
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+testpaths = ["packages/platform-py/tests", "apps/api/tests", "apps/workers/tests"]

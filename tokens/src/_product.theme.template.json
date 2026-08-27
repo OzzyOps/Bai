@@ -1,0 +1,35 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "TEMPLATE — copy to <product>.theme.json for each 'by BAi' product. This file is the COMPLETE set of overrides a product is permitted. Everything else inherits bai-core.tokens.json.",
+  "$version": "1.0.0",
+  "$extends": "./bai-core.tokens.json",
+
+  "product": {
+    "name":        { "$value": "<PRODUCT NAME>" },
+    "endorsement": { "$value": "by BAi" },
+    "domain":      { "$value": "<one line>" },
+    "locale":      { "$value": "en-GB" },
+    "currency":    { "$value": "GBP" }
+  },
+
+  "theme": {
+    "accent": { "$type": "color",
+      "base":     { "$value": "{color.brand.meridian}" },
+      "hover":    { "$value": "{color.teal.600}" },
+      "active":   { "$value": "{color.teal.700}" },
+      "subtle":   { "$value": "{color.teal.100}" },
+      "onAccent": { "$value": "{color.neutral.0}" } },
+    "hero": { "$type": "color",
+      "gradientFrom": { "$value": "{color.brand.ink}" },
+      "gradientTo":   { "$value": "{color.teal.700}" } }
+  },
+
+  "$locked": {
+    "$description": "Products MAY NOT override these paths. Enforced by scripts/validate-tokens.py in CI.",
+    "paths": [
+      "color.semantic.*", "color.confidence.*", "color.neutral.*", "color.brand.ink*", "color.brand.flux*",
+      "typography.fontFamily.*", "typography.scale.*", "typography.numeric.*",
+      "space.*", "radius.*", "motion.*", "a11y.*"
+    ]
+  }
+}

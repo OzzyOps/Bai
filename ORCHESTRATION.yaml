@@ -1,0 +1,312 @@
+# BAi · ORCHESTRATION
+#
+# Who runs, on what kind of brief, in what order, and who must critique them
+# before anything reaches the CEO.
+#
+# THIS FILE IS THE SOURCE OF TRUTH FOR ROUTING. It exists because the routing
+# rules were previously written three times — in CLAUDE.md, in overlord.md's
+# table, and again in each agent's own `description` — and the three had already
+# drifted apart. Claude Code routes on the `description` field, so where they
+# disagreed the prose table was decorative and nobody would have noticed.
+#
+# `scripts/validate_orchestration.py` checks this file against the actual agent
+# definitions on every CI run. Edit here first; the validator will tell you what
+# else needs to change.
+
+version: 1
+
+# ── the roster ─────────────────────────────────────────────────────────────
+# `generates: true` means the agent produces artefacts, and therefore must have
+# an evaluator listed in `evaluation` below. Note that this includes two of the
+# evaluators: a discovery study and a golden set are artefacts like any other,
+# and an unchecked golden set is how a product comes to measure the wrong thing
+# very precisely. `pod` is an organisational label, not a permission.
+
+agents:
+  overlord:
+    pod: supervisor
+    model: opus
+    generates: false
+    owns: [BLACKBOARD.md, routing, phase gates, confidence scoring]
+
+  product-manager:
+    pod: generators
+    model: opus
+    generates: true
+    owns: [problem statements, PRDs, feature schemas, pricing, portfolio selection]
+
+  tech-lead:
+    pod: generators
+    model: opus
+    generates: true
+    owns: [architecture, schemas, RLS, implementation, API contracts, run cost]
+
+  product-designer:
+    pod: generators
+    model: opus
+    generates: true
+    owns: [information architecture, flows, wireframes, component specs]
+
+  content-designer:
+    pod: generators
+    model: sonnet
+    generates: true
+    owns: [interface copy, error and empty states, escalation prompts, naming]
+
+  brand:
+    pod: generators
+    model: opus
+    generates: true
+    owns: [identity, positioning, tone of voice, design tokens, endorsement]
+
+  user-researcher:
+    pod: evaluators
+    model: opus
+    # Evaluators mostly critique, but they also produce: a discovery study and a
+    # golden set are artefacts, and an unchecked golden set is how a product
+    # ends up measuring the wrong thing precisely.
+    generates: true
+    owns: [friction, comprehension, cognitive load, trust, adoption risk, discovery studies]
+
+  secops:
+    pod: evaluators
+    model: opus
+    # Also produces: a DPIA, a residency assessment, a DDQ response. Checked by
+    # the tech lead, who is the one who has to implement the controls and can
+    # say whether they already exist.
+    generates: true
+    owns: [tenant isolation, privilege escalation, privacy law, residency, audit, DPIAs]
+
+  data-analyst:
+    pod: evaluators
+    model: opus
+    generates: true
+    owns: [OKRs, measurability, telemetry, golden sets, unit economics]
+
+  service-designer:
+    pod: synthesizers
+    model: opus
+    generates: true
+    owns: [service blueprints, cross-channel journeys, failure modes]
+
+  implementation-ops:
+    pod: synthesizers
+    model: sonnet
+    generates: true
+    owns: [delivery plans, pipelines, deployment, rollback, runbooks, SLOs]
+
+  product-marketing:
+    pod: synthesizers
+    model: opus
+    generates: true
+    owns: [positioning, messaging, launch, competitive analysis, enablement]
+
+# ── who critiques whom ─────────────────────────────────────────────────────
+# Locked rule: no raw generator output reaches the CEO. Every producing agent
+# has at least one evaluator, and the pairing is not a matter of taste — it is
+# whichever evaluator can actually falsify that kind of artefact.
+
+evaluation:
+  product-manager:    [user-researcher, data-analyst]
+  tech-lead:          [secops, data-analyst]
+  product-designer:   [user-researcher, secops]
+  content-designer:   [user-researcher]
+  brand:              [user-researcher]
+  service-designer:   [user-researcher]
+  implementation-ops: [secops]
+  product-marketing:  [data-analyst]
+  # What the evaluators themselves produce is checked by the PM, who is
+  # accountable for whether it measures the thing we intend to sell.
+  user-researcher:    [product-manager]
+  data-analyst:       [product-manager, user-researcher]
+  secops:             [tech-lead]
+
+# ── the phase ladder ───────────────────────────────────────────────────────
+# Phase 0 is done. Each phase ends at a gate: the Overlord scores it and the CEO
+# either approves or does not. Below 85% confidence the Overlord halts and asks
+# for a tie-breaker rather than carrying a soft number forward.
+#
+# `role: generate` produces. `role: evaluate` critiques what a generator earlier
+# in the same phase produced. `role: synthesise` combines approved outputs.
+# Stages listed in order; stages marked `parallel: true` may run concurrently
+# with the stage above them.
+
+phases:
+  - id: 0
+    name: genesis
+    question: What company is this, and what does it refuse to do?
+    stages:
+      - { agent: brand,             role: generate }
+      - { agent: product-manager,   role: generate, parallel: true }
+      - { agent: tech-lead,         role: generate, parallel: true }
+      - { agent: user-researcher,   role: evaluate }
+      - { agent: secops,            role: evaluate, parallel: true }
+      - { agent: data-analyst,      role: evaluate, parallel: true }
+    gate: CEO confirms entity, compliance posture and visual direction.
+    status: complete
+
+  - id: 1
+    name: strategic-context
+    question: What problem, for whom, and why does it earn its place?
+    requires_from_ceo: >-
+      The subject: which product, process or domain this is about. On a
+      new-product brief this is the thing Phase 1 has been blocked on since
+      genesis — the first product. On an increment it is the existing product.
+    stages:
+      - { agent: product-manager,   role: generate }
+      - { agent: user-researcher,   role: evaluate }
+      - { agent: data-analyst,      role: evaluate, parallel: true }
+    gate: CEO approves the problem statement and the OKRs it will be judged by.
+
+  - id: 2
+    name: discovery
+    question: Is the problem real, and would we know if we were wrong?
+    stages:
+      - { agent: user-researcher,   role: generate }
+      - { agent: data-analyst,      role: generate, parallel: true }
+      - { agent: product-manager,   role: evaluate }
+    gate: >-
+      A golden set exists, or the product is refused. Locked decision 7 — if
+      correctness cannot be measured it cannot be sold.
+
+  - id: 3
+    name: definition
+    question: What exactly are we building, and what is it called?
+    stages:
+      - { agent: product-manager,   role: generate }
+      - { agent: brand,             role: generate, parallel: true }
+      - { agent: user-researcher,   role: evaluate }
+      - { agent: data-analyst,      role: evaluate, parallel: true }
+    gate: CEO approves the PRD and the product name.
+
+  - id: 4
+    name: design
+    question: How is it structured, and what does it say?
+    stages:
+      - { agent: product-designer,  role: generate }
+      - { agent: content-designer,  role: generate, parallel: true }
+      - { agent: user-researcher,   role: evaluate }
+      - { agent: secops,            role: evaluate, parallel: true }
+      - { agent: service-designer,  role: synthesise }
+    gate: The blueprint shows every escalation path and every failure mode.
+
+  - id: 5
+    name: architecture
+    question: How is it built, what does it cost to run, and what can it leak?
+    stages:
+      - { agent: tech-lead,         role: generate }
+      - { agent: secops,            role: evaluate }
+      - { agent: data-analyst,      role: evaluate, parallel: true }
+    gate: >-
+      RLS policy and cross-org test for every new tenant table. SecOps has no
+      BLOCKING findings outstanding.
+
+  - id: 6
+    name: delivery
+    question: How does it ship, and what happens at 3am?
+    stages:
+      - { agent: implementation-ops, role: synthesise }
+      - { agent: secops,             role: evaluate }
+    gate: Rollback is documented and has been rehearsed, not just written down.
+
+  - id: 7
+    name: launch
+    question: How does the market understand it?
+    stages:
+      - { agent: product-marketing, role: synthesise }
+      - { agent: data-analyst,      role: evaluate }
+    gate: Every claim in the launch material is one the golden set supports.
+
+  - id: 8
+    name: compliance-assessment
+    question: What does this jurisdiction require of us, for this tenant?
+    stages:
+      - { agent: secops,    role: generate }
+      - { agent: tech-lead, role: evaluate }
+    gate: >-
+      The answer is stated per tenant, never as a global constant (locked
+      decision 8), and every control named is one that exists or has an owner.
+
+  - id: 9
+    name: identity
+    question: What is it called, and how does it sound?
+    stages:
+      - { agent: brand,            role: generate }
+      - { agent: content-designer, role: generate, parallel: true }
+      - { agent: user-researcher,  role: evaluate }
+    gate: >-
+      The name survives being said aloud to someone who has not seen the
+      product, and the endorsement rule is applied.
+
+# ── routing by brief ───────────────────────────────────────────────────────
+# The kind of brief decides which phases run. A GTM request does not need a
+# discovery phase; a platform change does not need a brand phase. The Overlord
+# picks the row, states which one it picked and why, and runs those phases in
+# the order given.
+#
+# `match` lists the signals that identify this brief type. They are for the
+# Overlord's judgement, not a keyword matcher — it must say which row it chose.
+
+briefs:
+  new-product:
+    description: A new product from nothing. The full ladder.
+    match: [new product, greenfield, from scratch, first product, a new idea]
+    phases: [1, 2, 3, 4, 5, 6, 7]
+    entry_agent: product-manager
+
+  product-increment:
+    description: A feature or change to a product that already exists.
+    match: [add a feature, change, improve, extend, next version]
+    phases: [1, 3, 4, 5, 6]
+    entry_agent: product-manager
+    notes: >-
+      Discovery is skipped only where a golden set already covers the change.
+      If it does not, the Overlord reinstates phase 2 and says so.
+
+  platform-change:
+    description: A change to the shared substrate under packages/.
+    match: [platform, substrate, shared, packages/, refactor, migration]
+    phases: [5, 6]
+    entry_agent: tech-lead
+    notes: >-
+      Locked decision 2 — a product need becomes a platform feature, never a
+      fork. A platform change with no product asking for it needs a reason.
+
+  brand-or-identity:
+    description: Naming, identity, tone, or the token system.
+    match: [name it, identity, logo, tone of voice, tokens, rebrand]
+    phases: [9]
+    entry_agent: brand
+
+  gtm-launch:
+    description: Taking something already built to market.
+    match: [launch, go to market, positioning, pricing page, competitors]
+    phases: [7]
+    entry_agent: product-marketing
+
+  research-question:
+    description: A question to answer, with nothing to build yet.
+    match: [is it true that, should we, what do users, validate, investigate]
+    phases: [2]
+    entry_agent: user-researcher
+    notes: Ends in a finding and a recommendation, never in a build.
+
+  compliance-review:
+    description: A regulatory, privacy, residency or audit question.
+    match: [GDPR, DPA, residency, audit, retention, regulator, privacy]
+    phases: [8]
+    entry_agent: secops
+    notes: >-
+      SecOps leads rather than evaluates here, which is why this has a phase of
+      its own rather than borrowing the architecture phase: reusing phase 5
+      would have started the run with the tech lead drafting, and a compliance
+      question answered by an architect is the wrong way round.
+
+  incident-or-ops:
+    description: Something is broken or degraded in production.
+    match: [incident, outage, degraded, on-call, rollback, postmortem]
+    phases: [6]
+    entry_agent: implementation-ops
+    notes: >-
+      The only brief that may skip the Overlord's gate while it is live.
+      The gate is applied afterwards, to the postmortem.

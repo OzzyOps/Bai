@@ -1,0 +1,138 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "BAi master design tokens — CORE layer. Immutable across every 'by BAi' product. Products override ONLY the theme layer (see _product.theme.template.json). v2.0 — v1.0 void, values were harvested from an unrelated product.",
+  "$version": "2.0.0",
+
+  "color": {
+    "$type": "color",
+    "brand": {
+      "ink":        { "$value": "#0A0E13", "$description": "BAi holding-brand colour. Dark surfaces, wordmark, trust pages." },
+      "ink-deep":   { "$value": "#05080C" },
+      "ink-soft":   { "$value": "#141A22" },
+      "ink-raised": { "$value": "#1D242E" },
+      "meridian":   { "$value": "#0E6E62", "$description": "Deep teal-green. Default product primary." },
+      "flux":       { "$value": "#1FD1B2", "$description": "BAi CORPORATE accent + 'automated action taken'. Never a product primary." },
+      "flux-dim":   { "$value": "#14A78D" }
+    },
+    "teal": {
+      "50":  { "$value": "#F2FAF8" }, "100": { "$value": "#DEF3EE" },
+      "200": { "$value": "#B4E4D8" }, "300": { "$value": "#7ACFBD" },
+      "400": { "$value": "#3FB49D" }, "500": { "$value": "#0E6E62" },
+      "600": { "$value": "#0B5A50" }, "700": { "$value": "#08453E" },
+      "800": { "$value": "#05302B" }
+    },
+    "neutral": {
+      "$description": "WARM greys. Deliberate counter-position to the cold slate used across enterprise AI.",
+      "0":   { "$value": "#FFFFFF" }, "25":  { "$value": "#FBFAF9" },
+      "50":  { "$value": "#F8F7F5" }, "100": { "$value": "#F0EEEB" },
+      "200": { "$value": "#E2DFDA" }, "300": { "$value": "#C8C4BD" },
+      "400": { "$value": "#A29D95" }, "500": { "$value": "#7C766D" },
+      "600": { "$value": "#5C5750" }, "700": { "$value": "#413D38" },
+      "800": { "$value": "#2A2724" }, "900": { "$value": "#1A1815" }
+    },
+    "semantic": {
+      "$description": "FIXED ecosystem-wide. A product may NOT redefine status colour — cross-product consistency is a trust property.",
+      "success":      { "$value": "#1E8A5F" }, "success-bg": { "$value": "#E6F4EE" },
+      "warning":      { "$value": "#B87514" }, "warning-bg": { "$value": "#FBF1E0" },
+      "danger":       { "$value": "#C4382C" }, "danger-bg":  { "$value": "#FAEBE9" },
+      "info":         { "$value": "#0E6E62" }, "info-bg":    { "$value": "#DEF3EE" },
+      "unknown":      { "$value": "#7C766D", "$description": "System could not determine. MUST be visually distinct from success. Retained from v1.0 — UR finding stands." },
+      "unknown-bg":   { "$value": "#F0EEEB" },
+      "automated":    { "$value": "#1FD1B2", "$description": "This was done for you, without a human. The brand's signature state." },
+      "automated-bg": { "$value": "#E4FAF5" },
+      "awaiting-human": { "$value": "#B87514", "$description": "Escalated. A person must decide." }
+    },
+    "confidence": {
+      "$description": "Agentic output confidence ramp. Paired ALWAYS with a numeric value and a label — never colour alone.",
+      "high":   { "$value": "#1E8A5F" },
+      "medium": { "$value": "#B87514" },
+      "low":    { "$value": "#C4382C" },
+      "none":   { "$value": "#7C766D" }
+    },
+    "surface": {
+      "light": {
+        "canvas": { "$value": "{color.neutral.50}" }, "raised": { "$value": "{color.neutral.0}" },
+        "sunken": { "$value": "{color.neutral.100}" }, "overlay": { "$value": "{color.neutral.0}" },
+        "scrim":  { "$value": "rgba(10, 14, 19, 0.55)" },
+        "border": { "$value": "{color.neutral.200}" }, "border-strong": { "$value": "{color.neutral.300}" }
+      },
+      "dark": {
+        "canvas": { "$value": "{color.brand.ink-deep}" }, "raised": { "$value": "{color.brand.ink}" },
+        "sunken": { "$value": "#03060A" }, "overlay": { "$value": "{color.brand.ink-soft}" },
+        "scrim":  { "$value": "rgba(3, 6, 10, 0.72)" },
+        "border": { "$value": "rgba(200, 196, 189, 0.16)" }, "border-strong": { "$value": "rgba(200, 196, 189, 0.30)" }
+      }
+    },
+    "text": {
+      "light": {
+        "primary": { "$value": "{color.brand.ink}" }, "secondary": { "$value": "{color.neutral.600}" },
+        "muted":   { "$value": "{color.neutral.500}" }, "inverse": { "$value": "{color.neutral.0}" },
+        "link":    { "$value": "{color.teal.600}" }
+      },
+      "dark": {
+        "primary": { "$value": "#F5F3F0" }, "secondary": { "$value": "{color.neutral.300}" },
+        "muted":   { "$value": "{color.neutral.400}" }, "inverse": { "$value": "{color.brand.ink}" },
+        "link":    { "$value": "{color.teal.300}" }
+      }
+    }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "$type": "fontFamily",
+      "display": { "$value": ["Inter Tight", "Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"] },
+      "sans":    { "$value": ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"] },
+      "mono":    { "$value": ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"], "$description": "Record IDs, audit entries, source references." }
+    },
+    "fontWeight": { "$type": "fontWeight",
+      "regular": { "$value": 400 }, "medium": { "$value": 500 },
+      "semibold": { "$value": 600 }, "bold": { "$value": 700 } },
+    "scale": { "$type": "dimension", "$description": "Major-third-tempered ramp, 16px base.",
+      "xs": { "$value": "0.75rem" },  "sm": { "$value": "0.875rem" }, "base": { "$value": "1rem" },
+      "lg": { "$value": "1.125rem" }, "xl": { "$value": "1.375rem" }, "2xl": { "$value": "1.75rem" },
+      "3xl": { "$value": "2.25rem" }, "4xl": { "$value": "3rem" },    "5xl": { "$value": "3.75rem" } },
+    "lineHeight": { "tight": { "$value": "1.15" }, "snug": { "$value": "1.3" },
+      "normal": { "$value": "1.55" }, "relaxed": { "$value": "1.7" } },
+    "letterSpacing": { "tight": { "$value": "-0.02em" }, "normal": { "$value": "0" },
+      "wide": { "$value": "0.04em" }, "caps": { "$value": "0.08em" } },
+    "numeric": { "tabular": { "$value": "tabular-nums",
+      "$description": "MANDATORY on all money, dates, counts, percentages and confidence values." } }
+  },
+
+  "space": { "$type": "dimension", "$description": "4px base grid.",
+    "0": { "$value": "0" }, "1": { "$value": "0.25rem" }, "2": { "$value": "0.5rem" },
+    "3": { "$value": "0.75rem" }, "4": { "$value": "1rem" }, "5": { "$value": "1.25rem" },
+    "6": { "$value": "1.5rem" }, "8": { "$value": "2rem" }, "10": { "$value": "2.5rem" },
+    "12": { "$value": "3rem" }, "16": { "$value": "4rem" }, "20": { "$value": "5rem" }, "24": { "$value": "6rem" } },
+
+  "radius": { "$type": "dimension",
+    "none": { "$value": "0" }, "sm": { "$value": "0.25rem" }, "md": { "$value": "0.5rem" },
+    "lg": { "$value": "0.75rem" }, "xl": { "$value": "1rem" }, "pill": { "$value": "999px" },
+    "$description": "Tighter than v1.0. Precision reads better than friendliness for a holding brand in financial technology." },
+
+  "shadow": { "$type": "shadow",
+    "sm": { "$value": "0 1px 2px rgba(10,14,19,0.05), 0 1px 3px rgba(10,14,19,0.04)" },
+    "md": { "$value": "0 4px 12px rgba(10,14,19,0.07), 0 1px 3px rgba(10,14,19,0.05)" },
+    "lg": { "$value": "0 12px 32px rgba(10,14,19,0.11), 0 2px 8px rgba(10,14,19,0.06)" },
+    "focus": { "$value": "0 0 0 3px rgba(31,209,178,0.40)" } },
+
+  "motion": {
+    "duration": { "instant": { "$value": "80ms" }, "fast": { "$value": "150ms" },
+      "base": { "$value": "240ms" }, "slow": { "$value": "400ms" } },
+    "easing": { "standard": { "$value": "cubic-bezier(0.32, 0.72, 0, 1)" },
+      "enter": { "$value": "cubic-bezier(0.16, 1, 0.3, 1)" },
+      "exit": { "$value": "cubic-bezier(0.4, 0, 1, 1)" } },
+    "$description": "All motion disabled under prefers-reduced-motion." },
+
+  "layout": {
+    "breakpoint": { "sm": { "$value": "640px" }, "md": { "$value": "768px" },
+      "lg": { "$value": "1024px" }, "xl": { "$value": "1280px" }, "2xl": { "$value": "1536px" } },
+    "container": { "prose": { "$value": "68ch" }, "app": { "$value": "1440px" }, "sidebar": { "$value": "260px" } },
+    "z": { "base": { "$value": 0 }, "dropdown": { "$value": 1000 }, "sticky": { "$value": 1100 },
+      "overlay": { "$value": 1200 }, "modal": { "$value": 1300 }, "toast": { "$value": 1400 } } },
+
+  "a11y": {
+    "minContrastBody": { "$value": 4.5 }, "minContrastLarge": { "$value": 3.0 },
+    "minTargetSize": { "$value": "44px" }, "focusRingWidth": { "$value": "3px" },
+    "$description": "WCAG 2.2 AA is the floor. Semantic and confidence colour must NEVER be the sole carrier of meaning — always pair with icon or text label." }
+}

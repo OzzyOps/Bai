@@ -1,0 +1,14 @@
+{
+  "name": "@bai/tokens",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./css": "./dist/tokens.css",
+    "./tailwind": "./dist/tailwind-preset.js"
+  },
+  "scripts": { "build": "tsx build.ts" },
+  "devDependencies": { "tsx": "^4.19.0", "typescript": "^5.6.0" }
+}
