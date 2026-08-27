@@ -1,0 +1,19 @@
+{
+  "name": "bai",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @bai/web dev",
+    "build": "pnpm --filter @bai/tokens build && pnpm --filter @bai/web build",
+    "lint": "pnpm --filter @bai/web lint",
+    "typecheck": "pnpm --filter @bai/web exec tsc -b --noEmit",
+    "test": "pnpm --filter @bai/web test",
+    "tokens:build": "pnpm --filter @bai/tokens build",
+    "tokens:validate": "python3 scripts/validate-tokens.py",
+    "gen:types": "bash scripts/gen-types.sh",
+    "agents:validate": "python3 scripts/validate_orchestration.py"
+  }
+}

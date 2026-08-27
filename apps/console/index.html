@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BAi Console</title>
+<meta name="description" content="BAi operational console — agent roster, escalation queue, platform invariants.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230A0E13'/><rect x='30' y='42' width='40' height='16' rx='3' fill='%231FD1B2'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark" aria-hidden="true"></span>
+    <span class="wordmark">bai</span>
+    <span class="sep"></span>
+    <span class="ctx">Console</span>
+  </div>
+  <div class="topbar-right">
+    <button class="mode-chip" id="modeChip" type="button" aria-haspopup="dialog">
+      <span class="dot" id="modeDot"></span><span id="modeLabel">Demo</span>
+    </button>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme">◐</button>
+    <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings">⚙</button>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" class="tab is-active" data-view="agents">Agents</button>
+  <button role="tab" class="tab" data-view="queue">Exception queue<span class="badge" id="queueCount">0</span></button>
+  <button role="tab" class="tab" data-view="records">Records</button>
+  <button role="tab" class="tab" data-view="platform">Platform</button>
+</nav>
+
+<main>
+  <!-- ─────────── AGENTS ─────────── -->
+  <section class="view is-active" id="view-agents">
+    <div class="split">
+      <aside class="roster" aria-label="Agent roster">
+        <div class="roster-head">
+          <h2>Roster</h2><span class="count" id="agentCount">12</span>
+        </div>
+        <div id="rosterList"></div>
+      </aside>
+
+      <div class="workbench">
+        <div class="wb-head">
+          <div>
+            <h2 id="wbName">Select an agent</h2>
+            <p class="muted" id="wbRole">The Overlord routes work across pods.</p>
+          </div>
+          <span class="pod-tag" id="wbPod"></span>
+        </div>
+
+        <div class="constraints" id="wbConstraints"></div>
+
+        <label class="field">
+          <span>Brief</span>
+          <textarea id="prompt" rows="5" placeholder="Describe the task. The agent applies its own binding constraints to the answer."></textarea>
+        </label>
+
+        <div class="wb-actions">
+          <button class="btn-primary" id="runBtn" type="button">Run agent</button>
+          <button class="btn-ghost" id="clearBtn" type="button">Clear</button>
+          <span class="cost muted" id="costLine"></span>
+        </div>
+
+        <div class="output" id="output" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── QUEUE ─────────── -->
+  <section class="view" id="view-queue">
+    <div class="view-intro">
+      <h2>Exception queue</h2>
+      <p class="muted">Where the product earns its keep. <code>operator</code> can resolve these without being able to change the record — that separation is what makes the queue delegable.</p>
+    </div>
+    <div id="queueList" class="stack"></div>
+  </section>
+
+  <!-- ─────────── RECORDS ─────────── -->
+  <section class="view" id="view-records">
+    <div class="view-intro">
+      <h2>Records</h2>
+      <p class="muted">Money renders from minor units and an ISO 4217 code. Note JPY carries no decimals and KWD carries three — assuming two is the most common way to lose money in a global product.</p>
+    </div>
+    <div class="table-wrap">
+      <table id="recordsTable">
+        <thead><tr><th>Record</th><th>Product</th><th class="num">Value</th><th>Confidence</th><th>Status</th></tr></thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─────────── PLATFORM ─────────── -->
+  <section class="view" id="view-platform">
+    <div class="view-intro"><h2>Platform invariants</h2>
+    <p class="muted">Enforced in <code>packages/platform-py</code>, not left to product code.</p></div>
+    <div class="grid" id="invariantGrid"></div>
+    <div class="view-intro" style="margin-top:2rem"><h2>Regions</h2>
+    <p class="muted">Physically isolated. No cross-region replication of customer data.</p></div>
+    <div class="grid" id="regionGrid"></div>
+  </section>
+</main>
+
+<!-- ─────────── SETTINGS ─────────── -->
+<dialog id="settings">
+  <form method="dialog" class="dlg">
+    <h2>Connection</h2>
+    <p class="muted small">Your Claude <strong>subscription</strong> cannot authenticate a web app — that covers claude.ai and Claude Code only. The options below are the real ones.</p>
+
+    <fieldset class="modes">
+      <label class="mode"><input type="radio" name="mode" value="demo">
+        <span><strong>Demo</strong><em>No network, no key. Canned responses. Safe to publish publicly.</em></span></label>
+      <label class="mode"><input type="radio" name="mode" value="proxy">
+        <span><strong>Supabase proxy</strong> <span class="rec">recommended</span><em>Key lives in Supabase secrets, never in the browser. Static site stays on GitHub Pages.</em></span></label>
+      <label class="mode"><input type="radio" name="mode" value="byok">
+        <span><strong>Bring your own key</strong><em>Calls Anthropic direct from the browser. Key stays in your localStorage — but anyone using your deployed page uses their own. Never ship a shared key this way.</em></span></label>
+    </fieldset>
+
+    <div class="cfg" id="cfgProxy" hidden>
+      <label class="field"><span>Supabase project URL</span>
+        <input id="sbUrl" type="url" placeholder="https://xxxx.supabase.co" autocomplete="off"></label>
+      <label class="field"><span>Supabase anon key</span>
+        <input id="sbKey" type="text" placeholder="eyJhbGci..." autocomplete="off"></label>
+      <p class="hint">Deploy <code>supabase/functions/claude-proxy</code> first, then set <code>ANTHROPIC_API_KEY</code> with <code>supabase secrets set</code>.</p>
+    </div>
+
+    <div class="cfg" id="cfgByok" hidden>
+      <label class="field"><span>Anthropic API key</span>
+        <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off"></label>
+      <p class="hint warn">Stored in this browser only. A key in client-side code is visible to anyone who opens dev tools — fine for your own key, never for a shared one.</p>
+    </div>
+
+    <label class="field"><span>Model</span>
+      <select id="model">
+        <option value="claude-opus-5">claude-opus-5 — reasoning</option>
+        <option value="claude-sonnet-5">claude-sonnet-5 — extraction, cheaper</option>
+        <option value="claude-haiku-4-5-20251001">claude-haiku-4-5 — fastest</option>
+      </select></label>
+
+    <div class="dlg-actions">
+      <button class="btn-ghost" value="cancel" type="submit">Cancel</button>
+      <button class="btn-primary" id="saveSettings" value="save" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="./app.js"></script>
+</body>
+</html>

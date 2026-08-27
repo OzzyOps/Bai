@@ -1,0 +1,31 @@
+[project]
+name = "bai-workers"
+version = "0.1.0"
+description = "BAi workers — durable agent execution."
+requires-python = ">=3.12"
+dependencies = [
+  "bai-platform",
+  "celery[redis]>=5.4",
+  "anthropic>=0.40",
+  "httpx>=0.27",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+  "structlog>=24.4",
+  "tenacity>=9.0",
+  "pypdf>=5.1",
+  "python-docx>=1.1",
+  "openpyxl>=3.1",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "mypy>=1.13", "ruff>=0.7"]
+
+[tool.uv.sources]
+bai-platform = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bai_workers"]

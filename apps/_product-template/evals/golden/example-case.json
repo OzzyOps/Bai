@@ -1,0 +1,14 @@
+{
+  "case_id": "example-001",
+  "notes": "Replace with real annotated cases. One file per case. The golden set defines what 'correct' means for this product — it is the most valuable artefact the product owns.",
+  "inputs": {
+    "document_ref": "sample.pdf",
+    "record_id": "00000000-0000-0000-0000-000000000001"
+  },
+  "expected": {
+    "total_value_minor": 124500,
+    "currency": "GBP",
+    "counterparty": "Example Supplier Ltd",
+    "effective_date": "2026-04-01"
+  }
+}

@@ -1,0 +1,36 @@
+/* Generated tokens. Never hardcode a value that exists here. */
+@import '@bai/tokens/css';
+@import 'tailwindcss';
+
+body {
+  /* The host paints its own ground behind the app, so body must be explicit. */
+  background: var(--color-surface-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--typography-fontfamily-sans);
+}
+
+/* Money, dates and counts are always tabular. Non-negotiable. */
+.bai-tabular,
+td[data-numeric],
+[data-money] {
+  font-variant-numeric: tabular-nums;
+}
+
+.bai-chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.2rem 0.5rem; border-radius: var(--radius-pill);
+  font-size: 0.75rem; font-weight: 500;
+}
+.bai-chip__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.bai-chip--high    { background: var(--color-semantic-success-bg); color: var(--color-semantic-success); }
+.bai-chip--medium  { background: var(--color-semantic-warning-bg); color: var(--color-semantic-warning); }
+/* Deliberately distinct from success. An uncertain result must not read as safe. */
+.bai-chip--unknown { background: var(--color-semantic-unknown-bg); color: var(--color-semantic-unknown); }
+
+.bai-cite {
+  font-family: var(--typography-fontfamily-mono);
+  font-size: 0.6875rem; color: var(--color-text-muted); font-style: normal;
+}
+.bai-warning { color: var(--color-semantic-danger); font-size: 0.8125rem; font-weight: 500; }
+
+:focus-visible { outline: none; box-shadow: var(--shadow-focus); }

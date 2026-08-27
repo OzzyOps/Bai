@@ -1,0 +1,30 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "Theme layer for <product>. This is the COMPLETE set of overrides permitted.",
+  "$version": "1.0.0",
+  "$extends": "../../packages/tokens/src/bai-core.tokens.json",
+  "product": {
+    "name": { "$value": "<PRODUCT NAME>" },
+    "endorsement": { "$value": "by BAi" },
+    "domain": { "$value": "<one line>" }
+  },
+  "theme": {
+    "accent": {
+      "$type": "color",
+      "base": { "$value": "{color.brand.meridian}" },
+      "hover": { "$value": "{color.teal.600}" },
+      "active": { "$value": "{color.teal.700}" },
+      "subtle": { "$value": "{color.teal.100}" },
+      "onAccent": { "$value": "{color.neutral.0}" }
+    }
+  },
+  "$locked": {
+    "$description": "Enforced by scripts/validate-tokens.py in CI.",
+    "paths": [
+      "color.semantic.*", "color.confidence.*", "color.neutral.*",
+      "color.brand.ink*", "color.brand.flux*",
+      "typography.fontFamily.*", "typography.scale.*", "typography.numeric.*",
+      "space.*", "radius.*", "motion.*", "a11y.*"
+    ]
+  }
+}
